@@ -65,7 +65,6 @@ document.getElementById("toggleSuaje").addEventListener("change", draw);
 document.getElementById("toggleBoxes").addEventListener("change", draw);
 window.addEventListener("resize", draw);
 
-// ---- drag and drop: ajuste manual de posición, encima del layout automático ----
 const toggleDrag = document.getElementById("toggleDrag");
 toggleDrag.addEventListener("change", () => {
   stage.classList.toggle("drag-mode", toggleDrag.checked);
@@ -85,8 +84,6 @@ document.getElementById("downloadPng").addEventListener("click", async () => {
   const prevLabel = btn.textContent;
   btn.textContent = "Generando…";
   try {
-    // exporta siempre limpio (sin tags/cajas), independiente de los toggles de pantalla;
-    // el troquel se mantiene pero solo como línea de corte, sin el tinte de aviso
     await renderStage(stage, state, { showLabels: false, showSuaje: true });
     await exportStagePNG(stage, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".png");
   } catch (err) {
