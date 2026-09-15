@@ -290,7 +290,8 @@
   .toolbar .spacer{ margin-left:auto; }
 
   .stage-wrap{
-    flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; padding:24px;
+    flex:1; overflow:auto; scrollbar-gutter:stable; padding:48px;
+    display:flex; align-items:center; justify-content:center;
     background:
       linear-gradient(rgba(255,255,255,.028), rgba(255,255,255,.028)),
       repeating-conic-gradient(#282b31 0% 25%, #23262c 0% 50%) 50% / 24px 24px;
@@ -618,6 +619,14 @@
 let state = loadState();
 const stage = document.getElementById("stage");
 const stageWrap = document.getElementById("stageWrap");
+
+// Los vectores pueden sangrar fuera del lienzo a propósito (ver #stage en
+// styles.css). fitStageToContainer sólo mide TEMPLATE.canvas, así que si el
+// margen es justo, todo lo que sobresale se queda cortado contra el borde del
+// panel. Reservando espacio la escala sigue dependiendo sólo del tamaño de la
+// ventana — nunca del contenido — así que el lienzo no cambia de tamaño al
+// cargar o quitar una imagen.
+const PREVIEW_PADDING = 48;
 const variantNote = document.getElementById("variantNote");
 
 document.getElementById("subtitleTag").textContent =
@@ -628,7 +637,7 @@ async function refresh() {
     showLabels: document.getElementById("toggleLabels").checked,
     showSuaje: document.getElementById("toggleSuaje").checked,
   });
-  fitStageToContainer(stage, stageWrap, 24);
+  fitStageToContainer(stage, stageWrap, PREVIEW_PADDING);
   saveState(state);
   variantNote.textContent = "variante activa: " + (corp.reddish ? "LETRABLANCA (fondo rojizo)" : "LETRAROJA (fondo claro)") +
     " · sello: " + (corp.sello ? "activo" : "apagado");
@@ -882,7 +891,7 @@ document.getElementById("resetAll").addEventListener("click", () => {
   legalOutline.checked = !!state.legal.outline;
 })();
 
-window.addEventListener("resize", () => fitStageToContainer(stage, stageWrap, 24));
+window.addEventListener("resize", () => fitStageToContainer(stage, stageWrap, PREVIEW_PADDING));
 refresh();
 </script>
 
