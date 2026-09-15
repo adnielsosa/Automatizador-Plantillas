@@ -1,0 +1,91 @@
+:root{
+  color-scheme: light;
+  --bg: #eef0f4;
+  --ink: #1b1f27;
+  --panel: #ffffff;
+  --panel-border: #dbdfe6;
+  --accent: #d3455b;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+*{ box-sizing: border-box; }
+html,body{
+  margin:0; padding:0; background: var(--bg); color: var(--ink); height:100%; overflow:hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* wrapper sized in px to the *scaled* footprint of #stage, so flex centering
+   of the preview actually lines up with what's visually on screen */
+#stageScaler{ flex:none; }
+
+/* ---------- stage: canvas real, es lo que se exporta ---------- */
+/* El tamaño de abajo es solo un valor de respaldo (@200dpi) por si este CSS
+   se pinta antes de que app.js corra — en la práctica siempre se sobreescribe
+   en línea según TEMPLATE.canvas (ver EXPORT_DPI/SCALE en app.js). */
+#stage{
+  position: relative;
+  width: 2480px;
+  height: 1240px;
+  background: #fff;
+  overflow: visible; /* los vectores pueden sangrar fuera del canvas a propósito */
+  transform-origin: top left;
+  flex: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,.18);
+}
+body.export-mode #stage{ box-shadow:none; }
+
+.layer{
+  position:absolute;
+  border: 2px dashed rgba(0,0,0,.35);
+  display:flex; align-items:flex-start; justify-content:flex-start;
+  overflow:hidden;
+}
+body.hide-boxes .layer{ border-color: transparent; }
+.layer .tag{
+  font-family: var(--mono);
+  font-size:18px; line-height:1.3;
+  background: rgba(0,0,0,.7); color:#fff;
+  padding:4px 8px; margin:0;
+  pointer-events:none;
+}
+body.export-mode .layer .tag,
+body.hide-labels .layer .tag{ display:none; }
+
+.layer-fondo{ z-index:1; }
+.layer-vector{ z-index:2; }
+.layer-bodegon{ z-index:3; }
+.layer-promo{ z-index:3; }
+.layer-corporativo{ z-index:4; background: rgba(237,125,49,.06); }
+.layer-legal{ z-index:4; }
+.layer-qr{ z-index:4; }
+
+.corp-row{ display:flex; align-items:center; gap:20px; width:100%; height:100%; padding:2px; }
+.corp-item{ height:100%; display:flex; align-items:center; }
+
+.legal-text{
+  /* InterCenefa = la misma fuente (bundled, ver fonts.js) que opentype.js
+     vectoriza glifo por glifo para el PDF — así pantalla/PNG/PDF quedan
+     visualmente consistentes entre sí. Fallback por si el @font-face fallara. */
+  font-family: "InterCenefa", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height:1.15; overflow:hidden; word-break: break-word; color:#000000;
+}
+.legal-text b, .legal-text strong{ font-weight:700; }
+.legal-text i, .legal-text em{ font-style:italic; }
+
+/* ---------- drag and drop: ajuste manual de posición, opcional, encima de
+   todo el layout automático (ver manualOffset en app.js) ---------- */
+#stage.drag-mode .layer{ cursor: grab; }
+#stage.drag-mode .layer:active{ cursor: grabbing; }
+.layer.dragging{
+  cursor: grabbing !important; outline: 2px solid var(--accent); outline-offset: 2px;
+  z-index: 999; opacity: .92;
+}
+
+/* ---------- SUAJE (troquel) overlay: siempre encima, solo referencia ---------- */
+#suaje-overlay{
+  position:absolute; left:0; top:0; width:2480px; height:1240px;
+  pointer-events:none; z-index:50;
+}
+#suaje-overlay svg{ width:100%; height:100%; display:block; }
+#suaje-overlay .st0{ fill:#ff2fb0; fill-opacity:.28; }
+#suaje-overlay .st1{ fill:none; stroke:#000; stroke-width:0.3px; }
+body.hide-suaje #suaje-overlay{ display:none; }

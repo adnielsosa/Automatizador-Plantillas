@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Render — LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .toolbar{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 16px;
+    background: var(--panel); border-bottom:1px solid var(--panel-border); font-size:12.5px;
+    position: sticky; top:0; z-index: 100;
+  }
+  .toolbar label{ display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+  .toolbar a{ font-size:12.5px; color:var(--ink); }
+  .toolbar button.btn{
+    margin-left:auto; font-size:12.5px; background:var(--ink); color:#fff; border:none;
+    padding:7px 12px; border-radius:6px; cursor:pointer;
+  }
+  .toolbar button.btn.secondary{ background:#fff; color:var(--ink); border:1px solid var(--panel-border); }
+  body.export-mode .toolbar{ display:none; }
+  .stage-wrap{ min-height: calc(100vh - 41px); display:flex; align-items:center; justify-content:center; padding:28px; }
+  body.export-mode .stage-wrap{ min-height:0; padding:0; display:block; }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <label><input type="checkbox" id="toggleBoxes"> Cajas</label>
+    <label><input type="checkbox" id="toggleSuaje" checked> Troquel</label>
+    <label title="Arrastra para mover. Rueda del mouse sobre una capa para girarla (Shift = pasos de 15°, Alt = pasos finos de 0.5°). Ctrl/Cmd + rueda para escalarla (Shift = pasos de 20%, Alt = pasos finos de 1%)."><input type="checkbox" id="toggleDrag"> Ajustar posición (arrastrar · rueda = girar · Ctrl+rueda = escalar)</label>
+    <button class="btn secondary" id="resetPositions">Reiniciar ajustes</button>
+    <button class="btn" id="downloadPng">Descargar PNG</button>
+    <button class="btn secondary" id="downloadPdf">Descargar PDF (impresión)</button>
+    <button class="btn secondary" id="downloadPsd" title="PSD por capas — cada pieza en su propia capa de Photoshop, no texto/vector editable (igual que el PDF, en curvas). Puede tardar unos segundos y pesar varias decenas de MB.">Descargar PSD (por capas)</button>
+    <a href="index.html">← Volver al inyector</a>
+  </div>
+  <div class="stage-wrap" id="stageWrap">
+    <div id="stageScaler"><div id="stage"></div></div>
+  </div>
+
+<script src="default-assets.js"></script>
+<script src="fonts.js"></script>
+<script src="vendor/opentype.min.js"></script>
+<script src="vendor/ag-psd.min.js"></script>
+<script src="app.js"></script>
+<script>
+const state = loadState();
+const stage = document.getElementById("stage");
+const stageWrap = document.getElementById("stageWrap");
+const isExport = new URLSearchParams(location.search).get("export") === "1";
+
+async function draw() {
+  await renderStage(stage, state, {
+    showLabels: false,
+    showSuaje: document.getElementById("toggleSuaje").checked,
+  });
+  document.body.classList.toggle("hide-boxes", isExport || !document.getElementById("toggleBoxes").checked);
+  if (isExport) {
+    stage.style.transform = "none";
+  } else {
+    fitStageToContainer(stage, stageWrap, 0);
+  }
+}
+
+document.getElementById("toggleSuaje").addEventListener("change", draw);
+document.getElementById("toggleBoxes").addEventListener("change", draw);
+window.addEventListener("resize", draw);
+
+// ---- drag and drop: ajuste manual de posición, encima del layout automático ----
+const toggleDrag = document.getElementById("toggleDrag");
+toggleDrag.addEventListener("change", () => {
+  stage.classList.toggle("drag-mode", toggleDrag.checked);
+});
+document.getElementById("resetPositions").addEventListener("click", () => {
+  state.manualOffset = {};
+  saveState(state);
+  draw();
+});
+enableLayerDragging(stage, state, {
+  onChange: () => { saveState(state); draw(); },
+});
+
+document.getElementById("downloadPng").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPng");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    // exporta siempre limpio (sin tags/cajas), independiente de los toggles de pantalla;
+    // el troquel se mantiene pero solo como línea de corte, sin el tinte de aviso
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePNG(stage, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".png");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PNG. Revisa la consola (F12).");
+  } finally {
+    await draw();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+document.getElementById("downloadPdf").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPdf");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePDF(stage, state, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".pdf");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PDF. Revisa la consola (F12).");
+  } finally {
+    await draw();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+document.getElementById("downloadPsd").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPsd");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePSD(stage, state, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".psd");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PSD. Revisa la consola (F12).");
+  } finally {
+    await draw();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+if (isExport) {
+  document.body.classList.add("export-mode");
+}
+draw();
+</script>
+</body>
+</html>

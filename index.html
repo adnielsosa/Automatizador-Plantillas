@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Inyector — LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .app{ display:flex; height:100vh; }
+  .form-pane{
+    width: 420px; flex: none; overflow-y:auto; background: var(--panel);
+    border-right:1px solid var(--panel-border); padding: 18px 20px 60px;
+  }
+  .form-pane h1{ font-size:14px; margin: 0 0 4px; }
+  .form-pane .subtitle{ font-size:12px; color:#666; margin:0 0 20px; font-family: var(--mono); }
+  fieldset{ border:1px solid var(--panel-border); border-radius:8px; margin:0 0 16px; padding:12px 14px; }
+  legend{ font-size:12px; font-weight:700; padding:0 6px; text-transform:uppercase; letter-spacing:.03em; color:#444; }
+  fieldset .hint{ font-size:11.5px; color:#777; margin:2px 0 10px; line-height:1.4; }
+  label.field{ display:block; font-size:12.5px; margin:8px 0 4px; color:#333; }
+  input[type=file], input[type=text], textarea{
+    width:100%; font-size:13px; padding:6px 8px; border:1px solid var(--panel-border);
+    border-radius:6px; font-family: inherit;
+  }
+  textarea{ resize:vertical; min-height:56px; }
+  input[type=color]{ width:44px; height:30px; border:1px solid var(--panel-border); border-radius:6px; padding:2px; vertical-align:middle; }
+  .rte-toolbar{ display:flex; align-items:center; gap:6px; margin-top:6px; }
+  .rte-btn{
+    width:30px; height:30px; border:1px solid var(--panel-border); background:#fff; border-radius:6px;
+    cursor:pointer; font-size:13px; color:var(--ink); display:flex; align-items:center; justify-content:center;
+  }
+  .rte-btn:hover{ background:#f5f6f8; }
+  .rte-btn.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .legal-editor{
+    width:100%; min-height:64px; font-size:13px; padding:8px; border:1px solid var(--panel-border);
+    border-radius:6px; font-family:"InterCenefa", inherit; line-height:1.35; outline:none;
+  }
+  .legal-editor:focus{ border-color:#9aa3b2; }
+  .legal-editor:empty::before{ content:attr(data-placeholder); color:#9aa0ab; }
+  .row-inline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .clear-btn{
+    font-size:11px; border:1px solid var(--panel-border); background:#f5f6f8; border-radius:6px;
+    padding:3px 8px; cursor:pointer; color:#555;
+  }
+  .clear-btn:hover{ background:#eceef1; }
+  .checkbox-row{ display:flex; align-items:center; gap:6px; font-size:12.5px; margin-top:8px; }
+  .variant-note{
+    font-size:11.5px; font-family: var(--mono); background:#f5f6f8; border:1px dashed var(--panel-border);
+    border-radius:6px; padding:6px 8px; margin-top:6px; color:#444;
+  }
+
+  .xlsx-btn{
+    font-size:11px; border:1px solid var(--panel-border); background:#f5f6f8; border-radius:6px;
+    padding:5px 9px; cursor:pointer; color:#333; margin-left:4px;
+  }
+  .xlsx-btn:hover{ background:#eceef1; }
+  .xlsx-modal{
+    position:fixed; inset:0; background:rgba(20,22,28,.5); z-index:1000;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .xlsx-modal[hidden]{ display:none; }
+  .xlsx-modal-panel{
+    background:var(--panel); border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.35);
+    width:min(880px, 100%); max-height:86vh; display:flex; flex-direction:column;
+    padding:18px 20px; overflow:hidden;
+  }
+  .xlsx-modal-head{ display:flex; align-items:center; justify-content:space-between; }
+  .xlsx-modal-head h2{ font-size:15px; margin:0; }
+  .xlsx-close{
+    border:none; background:transparent; font-size:16px; cursor:pointer; color:#666;
+    width:28px; height:28px; border-radius:6px;
+  }
+  .xlsx-close:hover{ background:#f0f1f4; }
+  .xlsx-modal .hint{ font-size:12px; color:#666; margin:6px 0 12px; line-height:1.45; }
+  .xlsx-modal select{
+    font-size:12.5px; padding:6px 8px; border:1px solid var(--panel-border); border-radius:6px;
+  }
+  .xlsx-status{ font-size:12px; color:#666; margin:8px 0 4px; min-height:16px; }
+  .xlsx-status.err{ color:#b3273f; }
+  .xlsx-status.ok{ color:#2c7a43; }
+  .xlsx-grid-wrap{ overflow:auto; border:1px solid var(--panel-border); border-radius:8px; flex:1; }
+  table.xlsx-grid{ border-collapse:collapse; font-size:12px; }
+  table.xlsx-grid th, table.xlsx-grid td{
+    border:1px solid var(--panel-border); padding:5px 8px; text-align:left; white-space:nowrap;
+  }
+  table.xlsx-grid thead th{ background:#f5f6f8; position:sticky; top:0; z-index:1; color:#555; font-weight:600; }
+  table.xlsx-grid tbody th{ background:#f5f6f8; position:sticky; left:0; color:#555; font-weight:600; }
+  table.xlsx-grid td{ cursor:pointer; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+  table.xlsx-grid td:hover{ background:#fff3ea; outline:1px solid var(--accent); outline-offset:-1px; }
+  .xlsx-empty{ padding:20px; color:#777; font-size:12.5px; }
+
+  .preview-pane{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .toolbar{
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 16px;
+    background: var(--panel); border-bottom:1px solid var(--panel-border); font-size:12.5px;
+  }
+  .toolbar label{ display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
+  .toolbar a.btn, .toolbar button.btn{
+    margin-left:auto; font-size:12.5px; background:var(--ink); color:#fff; border:none;
+    padding:7px 12px; border-radius:6px; text-decoration:none; cursor:pointer;
+  }
+  .toolbar button.btn.secondary{ background:#fff; color:var(--ink); border:1px solid var(--panel-border); margin-left:8px; }
+  .stage-wrap{ flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; padding:24px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="form-pane">
+    <h1>Inyector de elementos</h1>
+    <p class="subtitle" id="subtitleTag">LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</p>
+
+    <fieldset>
+      <legend>Fondo</legend>
+      <label class="field">Color (hexadecimal)</label>
+      <div class="row-inline">
+        <input type="color" id="fondoPicker">
+        <input type="text" id="fondoHex" placeholder="#ffffff" style="flex:1">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vectores decorativos</legend>
+      <label class="field">Vector 1</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="vector1File"><button class="clear-btn" data-clear="vector1">Quitar</button></div>
+      <label class="field">Vector 2</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="vector2File"><button class="clear-btn" data-clear="vector2">Quitar</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Bodegón</legend>
+      <label class="field">Imagen del bodegón</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="productoFile"><button class="clear-btn" data-clear="producto">Quitar</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Promo</legend>
+      <label class="field">Imagen de la promo</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="promoFile"><button class="clear-btn" data-clear="promo">Quitar</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Combo corporativo</legend>
+      <div class="variant-note" id="variantNote">variante activa: —</div>
+      <label class="field" style="margin-top:10px">Sello de responsabilidad</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="selloFile"><button class="clear-btn" data-clear="corp-sello">Quitar (apagar)</button></div>
+      <label class="field" style="margin-top:10px">Sello -18</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="edadFile"><button class="clear-btn" data-clear="corp-edad18">Quitar (apagar)</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Legal</legend>
+      <label class="field">Texto — selecciona una parte para darle su propio estilo</label>
+      <div class="rte-toolbar">
+        <button type="button" class="rte-btn" id="legalBoldBtn" title="Negrita (a la selección)"><b>B</b></button>
+        <button type="button" class="rte-btn" id="legalItalicBtn" title="Cursiva (a la selección)"><i>I</i></button>
+        <input type="color" id="legalColor" title="Color (a la selección)" value="#000000">
+        <button type="button" class="xlsx-btn" id="legalExcelBtn" title="Traer el texto legal de una celda de Excel, con su negrita/cursiva/color reales">Cargar desde Excel</button>
+      </div>
+      <div id="legalText" class="legal-editor" contenteditable="true" data-placeholder="Vigencia del... No aplica con otras promociones..."></div>
+      <div class="checkbox-row"><input type="checkbox" id="legalOutline"><label for="legalOutline">Contorno blanco (para fondos oscuros)</label></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>QR</legend>
+      <label class="field">Imagen del QR</label>
+      <div class="row-inline"><input type="file" accept="image/*" id="qrFile"><button class="clear-btn" data-clear="qr">Quitar</button></div>
+    </fieldset>
+
+    <button class="clear-btn" id="resetAll" style="width:100%;padding:8px;font-size:12.5px;">Reiniciar todo</button>
+  </div>
+
+  <div class="preview-pane">
+    <div class="toolbar">
+      <label><input type="checkbox" id="toggleBoxes" checked> Cajas</label>
+      <label><input type="checkbox" id="toggleLabels" checked> Etiquetas</label>
+      <label><input type="checkbox" id="toggleSuaje" checked> Troquel</label>
+      <label title="Arrastra para mover. Rueda del mouse sobre una capa para girarla (Shift = pasos de 15°, Alt = pasos finos de 0.5°). Ctrl/Cmd + rueda para escalarla (Shift = pasos de 20%, Alt = pasos finos de 1%)."><input type="checkbox" id="toggleDrag"> Ajustar posición (arrastrar · rueda = girar · Ctrl+rueda = escalar)</label>
+      <button class="btn secondary" id="resetPositions">Reiniciar ajustes</button>
+      <button class="btn secondary" id="downloadPng">Descargar PNG</button>
+      <button class="btn secondary" id="downloadPdf">Descargar PDF (impresión)</button>
+      <button class="btn secondary" id="downloadPsd" title="PSD por capas — cada pieza en su propia capa de Photoshop, no texto/vector editable (igual que el PDF, en curvas). Puede tardar unos segundos y pesar varias decenas de MB.">Descargar PSD (por capas)</button>
+      <a class="btn" href="render.html" target="_blank" rel="noopener">Abrir render.html →</a>
+    </div>
+    <div class="stage-wrap" id="stageWrap">
+      <div id="stageScaler"><div id="stage"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="xlsxModal" class="xlsx-modal" hidden>
+  <div class="xlsx-modal-panel">
+    <div class="xlsx-modal-head">
+      <h2>Cargar texto legal desde Excel</h2>
+      <button type="button" class="xlsx-close" id="xlsxModalClose" aria-label="Cerrar">✕</button>
+    </div>
+    <p class="hint">Elige el archivo .xlsx y luego haz clic en la celda que tiene el texto legal — se trae con su negrita, cursiva y color reales de Excel (no depende del portapapeles).</p>
+    <div class="row-inline">
+      <input type="file" accept=".xlsx" id="xlsxFileInput">
+      <select id="xlsxSheetSelect" hidden></select>
+    </div>
+    <div class="xlsx-status" id="xlsxStatus"></div>
+    <div class="xlsx-grid-wrap" id="xlsxGridWrap"></div>
+  </div>
+</div>
+
+<script src="default-assets.js"></script>
+<script src="fonts.js"></script>
+<script src="vendor/opentype.min.js"></script>
+<script src="vendor/ag-psd.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="app.js"></script>
+<script>
+let state = loadState();
+const stage = document.getElementById("stage");
+const stageWrap = document.getElementById("stageWrap");
+const variantNote = document.getElementById("variantNote");
+
+document.getElementById("subtitleTag").textContent =
+  TEMPLATE.name + " · " + TEMPLATE.canvas.width + "×" + TEMPLATE.canvas.height + " @" + EXPORT_DPI + "dpi";
+
+async function refresh() {
+  const corp = await renderStage(stage, state, {
+    showLabels: document.getElementById("toggleLabels").checked,
+    showSuaje: document.getElementById("toggleSuaje").checked,
+  });
+  fitStageToContainer(stage, stageWrap, 24);
+  saveState(state);
+  variantNote.textContent = "variante activa: " + (corp.reddish ? "LETRABLANCA (fondo rojizo)" : "LETRAROJA (fondo claro)") +
+    " · sello: " + (corp.sello ? "activo" : "apagado");
+}
+
+const fondoPicker = document.getElementById("fondoPicker");
+const fondoHex = document.getElementById("fondoHex");
+function setFondo(hex) {
+  state.fondo.hex = hex;
+  fondoPicker.value = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#ffffff";
+  fondoHex.value = hex;
+  refresh();
+}
+fondoPicker.addEventListener("input", e => setFondo(e.target.value));
+fondoHex.addEventListener("input", e => setFondo(e.target.value));
+
+function wireImageInput(inputId, getSlot) {
+  document.getElementById(inputId).addEventListener("change", async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const slot = getSlot();
+    slot.dataUrl = await fileToDataURL(file);
+    if ("svgMarkup" in slot) {
+      slot.svgMarkup = isSvgFile(file) ? await fileToText(file) : null;
+    }
+    refresh();
+  });
+}
+wireImageInput("vector1File", () => state.vector1);
+wireImageInput("vector2File", () => state.vector2);
+wireImageInput("productoFile", () => state.producto);
+wireImageInput("promoFile", () => state.promo);
+wireImageInput("selloFile", () => state.corporativo.sello);
+wireImageInput("edadFile", () => state.corporativo.edad18);
+wireImageInput("qrFile", () => state.qr);
+
+document.querySelectorAll("[data-clear]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.clear;
+    if (key.startsWith("corp-")) {
+      state.corporativo[key.replace("corp-", "")].dataUrl = null;
+    } else {
+      state[key].dataUrl = null;
+      if ("svgMarkup" in state[key]) state[key].svgMarkup = null;
+    }
+    refresh();
+  });
+});
+
+const legalEditor = document.getElementById("legalText");
+const legalColor = document.getElementById("legalColor");
+const legalBoldBtn = document.getElementById("legalBoldBtn");
+const legalItalicBtn = document.getElementById("legalItalicBtn");
+const legalOutline = document.getElementById("legalOutline");
+
+try { document.execCommand("defaultParagraphSeparator", false, "br"); } catch (e) { /* no crítico */ }
+try { document.execCommand("styleWithCSS", false, true); } catch (e) { /* no crítico */ }
+
+function syncLegalFromEditor() {
+  state.legal.html = legalEditor.innerHTML;
+  refresh();
+}
+
+let legalSavedRange = null;
+function legalSaveSelection() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && legalEditor.contains(sel.anchorNode)) {
+    legalSavedRange = sel.getRangeAt(0).cloneRange();
+  }
+}
+function legalRestoreSelection() {
+  if (!legalSavedRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(legalSavedRange);
+}
+legalEditor.addEventListener("mouseup", legalSaveSelection);
+legalEditor.addEventListener("keyup", legalSaveSelection);
+
+legalEditor.addEventListener("input", syncLegalFromEditor);
+legalEditor.addEventListener("paste", (e) => {
+
+  e.preventDefault();
+  const cd = e.clipboardData || window.clipboardData;
+  const html = cd.getData("text/html");
+  const inserted = html && html.trim()
+    ? sanitizeLegalHtml(html)
+    : legalMarkdownToHtml(cd.getData("text/plain"));
+  document.execCommand("insertHTML", false, inserted);
+});
+
+[legalBoldBtn, legalItalicBtn].forEach(btn => btn.addEventListener("mousedown", e => e.preventDefault()));
+
+legalBoldBtn.addEventListener("click", () => {
+  legalEditor.focus();
+  document.execCommand("bold");
+  syncLegalFromEditor();
+});
+legalItalicBtn.addEventListener("click", () => {
+  legalEditor.focus();
+  document.execCommand("italic");
+  syncLegalFromEditor();
+});
+legalColor.addEventListener("input", () => {
+  legalEditor.focus();
+  legalRestoreSelection();
+  document.execCommand("foreColor", false, legalColor.value);
+  syncLegalFromEditor();
+  legalSaveSelection();
+});
+legalOutline.addEventListener("change", () => { state.legal.outline = legalOutline.checked; refresh(); });
+
+const xlsxModal = document.getElementById("xlsxModal");
+const xlsxFileInput = document.getElementById("xlsxFileInput");
+const xlsxSheetSelect = document.getElementById("xlsxSheetSelect");
+const xlsxStatus = document.getElementById("xlsxStatus");
+const xlsxGridWrap = document.getElementById("xlsxGridWrap");
+let xlsxWorkbook = null;
+
+function xlsxSetStatus(text, cls) {
+  xlsxStatus.textContent = text || "";
+  xlsxStatus.className = "xlsx-status" + (cls ? " " + cls : "");
+}
+function xlsxShowSheet(name) {
+  if (!xlsxWorkbook || !xlsxWorkbook.sheetsData[name]) return;
+  xlsxRenderPreviewGrid(xlsxGridWrap, xlsxWorkbook.sheetsData[name], (ref, html) => {
+    legalEditor.innerHTML = sanitizeLegalHtml(html);
+    syncLegalFromEditor();
+    xlsxCloseModal();
+    legalEditor.focus();
+  });
+}
+function xlsxOpenModal() {
+  xlsxModal.hidden = false;
+}
+function xlsxCloseModal() {
+  xlsxModal.hidden = true;
+}
+document.getElementById("legalExcelBtn").addEventListener("click", xlsxOpenModal);
+document.getElementById("xlsxModalClose").addEventListener("click", xlsxCloseModal);
+xlsxModal.addEventListener("click", e => { if (e.target === xlsxModal) xlsxCloseModal(); });
+
+xlsxFileInput.addEventListener("change", async () => {
+  const file = xlsxFileInput.files[0];
+  if (!file) return;
+  xlsxWorkbook = null;
+  xlsxGridWrap.innerHTML = "";
+  xlsxSheetSelect.hidden = true;
+  xlsxSetStatus("Leyendo " + file.name + "…");
+  try {
+    const buf = await file.arrayBuffer();
+    xlsxWorkbook = await xlsxLoadWorkbookForPicker(buf);
+    if (!xlsxWorkbook.sheetNames.length) throw new Error("No se encontraron hojas con datos.");
+    xlsxSheetSelect.innerHTML = "";
+    xlsxWorkbook.sheetNames.forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name; opt.textContent = name;
+      xlsxSheetSelect.appendChild(opt);
+    });
+    xlsxSheetSelect.hidden = xlsxWorkbook.sheetNames.length < 2;
+    xlsxSetStatus("✓ Listo — haz clic en la celda con el texto legal.", "ok");
+    xlsxShowSheet(xlsxWorkbook.sheetNames[0]);
+  } catch (e) {
+    xlsxSetStatus("✗ " + e.message, "err");
+  }
+});
+xlsxSheetSelect.addEventListener("change", () => xlsxShowSheet(xlsxSheetSelect.value));
+
+["toggleBoxes", "toggleLabels", "toggleSuaje"].forEach(id => {
+  document.getElementById(id).addEventListener("change", () => {
+    document.body.classList.toggle("hide-boxes", !document.getElementById("toggleBoxes").checked);
+    refresh();
+  });
+});
+
+toggleDrag.addEventListener("change", () => {
+  stage.classList.toggle("drag-mode", toggleDrag.checked);
+});
+document.getElementById("resetPositions").addEventListener("click", () => {
+  state.manualOffset = {};
+  refresh();
+});
+enableLayerDragging(stage, state, { onChange: () => refresh() });
+
+document.getElementById("downloadPng").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPng");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePNG(stage, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".png");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PNG. Revisa la consola (F12).");
+  } finally {
+    await refresh();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+document.getElementById("downloadPdf").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPdf");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    // mismo criterio de limpieza que el PNG: sin tags/cajas, troquel solo como línea de corte
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePDF(stage, state, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".pdf");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PDF. Revisa la consola (F12).");
+  } finally {
+    await refresh();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+document.getElementById("downloadPsd").addEventListener("click", async () => {
+  const btn = document.getElementById("downloadPsd");
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = "Generando…";
+  try {
+    await renderStage(stage, state, { showLabels: false, showSuaje: true });
+    await exportStagePSD(stage, state, TEMPLATE.name.replace(/[^\w()]+/g, "_") + ".psd");
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo generar el PSD. Revisa la consola (F12).");
+  } finally {
+    await refresh();
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
+});
+
+document.getElementById("resetAll").addEventListener("click", () => {
+  if (!confirm("¿Reiniciar todos los campos inyectados?")) return;
+  state = defaultState();
+  saveState(state);
+  location.reload();
+});
+
+(function hydrate() {
+  fondoPicker.value = /^#[0-9a-fA-F]{6}$/.test(state.fondo.hex) ? state.fondo.hex : "#ffffff";
+  fondoHex.value = state.fondo.hex;
+  legalEditor.innerHTML = sanitizeLegalHtml(state.legal.html || "");
+  legalOutline.checked = !!state.legal.outline;
+})();
+
+window.addEventListener("resize", () => fitStageToContainer(stage, stageWrap, 24));
+refresh();
+</script>
+</body>
+</html>
