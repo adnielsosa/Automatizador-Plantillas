@@ -156,7 +156,14 @@
   .color-row input[type=text]:focus{ box-shadow:none; }
 
   /* ---------- selector de archivo con miniatura ---------- */
-  .filefield{ display:flex; align-items:center; gap:8px; }
+  /* position:relative es obligatorio: el <input type=file> de abajo está
+     fuera de flujo y sin un ancestro posicionado su bloque contenedor es el
+     viewport, así que queda a cientos de px bajo el borde inferior del
+     documento. Al enfocarlo (un clic en .file-drop) el navegador scrollea el
+     documento entero para revelarlo y, como html/body son overflow:hidden,
+     no hay forma de volver: la barra superior y la de chips desaparecen
+     hasta recargar. */
+  .filefield{ position:relative; display:flex; align-items:center; gap:8px; }
   .filefield input[type=file]{
     position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;
   }
