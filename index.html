@@ -2,189 +2,592 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Inyector — LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inyector de elementos — Automatizador de plantillas</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-  .app{ display:flex; height:100vh; }
-  .form-pane{
-    width: 420px; flex: none; overflow-y:auto; background: var(--panel);
-    border-right:1px solid var(--panel-border); padding: 18px 20px 60px;
-  }
-  .form-pane h1{ font-size:14px; margin: 0 0 4px; }
-  .form-pane .subtitle{ font-size:12px; color:#666; margin:0 0 20px; font-family: var(--mono); }
-  fieldset{ border:1px solid var(--panel-border); border-radius:8px; margin:0 0 16px; padding:12px 14px; }
-  legend{ font-size:12px; font-weight:700; padding:0 6px; text-transform:uppercase; letter-spacing:.03em; color:#444; }
-  fieldset .hint{ font-size:11.5px; color:#777; margin:2px 0 10px; line-height:1.4; }
-  label.field{ display:block; font-size:12.5px; margin:8px 0 4px; color:#333; }
-  input[type=file], input[type=text], textarea{
-    width:100%; font-size:13px; padding:6px 8px; border:1px solid var(--panel-border);
-    border-radius:6px; font-family: inherit;
-  }
-  textarea{ resize:vertical; min-height:56px; }
-  input[type=color]{ width:44px; height:30px; border:1px solid var(--panel-border); border-radius:6px; padding:2px; vertical-align:middle; }
-  .rte-toolbar{ display:flex; align-items:center; gap:6px; margin-top:6px; }
-  .rte-btn{
-    width:30px; height:30px; border:1px solid var(--panel-border); background:#fff; border-radius:6px;
-    cursor:pointer; font-size:13px; color:var(--ink); display:flex; align-items:center; justify-content:center;
-  }
-  .rte-btn:hover{ background:#f5f6f8; }
-  .rte-btn.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
-  .legal-editor{
-    width:100%; min-height:64px; font-size:13px; padding:8px; border:1px solid var(--panel-border);
-    border-radius:6px; font-family:"InterCenefa", inherit; line-height:1.35; outline:none;
-  }
-  .legal-editor:focus{ border-color:#9aa3b2; }
-  .legal-editor:empty::before{ content:attr(data-placeholder); color:#9aa0ab; }
-  .row-inline{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .clear-btn{
-    font-size:11px; border:1px solid var(--panel-border); background:#f5f6f8; border-radius:6px;
-    padding:3px 8px; cursor:pointer; color:#555;
-  }
-  .clear-btn:hover{ background:#eceef1; }
-  .checkbox-row{ display:flex; align-items:center; gap:6px; font-size:12.5px; margin-top:8px; }
-  .variant-note{
-    font-size:11.5px; font-family: var(--mono); background:#f5f6f8; border:1px dashed var(--panel-border);
-    border-radius:6px; padding:6px 8px; margin-top:6px; color:#444;
+  /* ============================================================
+     Chrome de la aplicación: barra, sidebar, toolbar y modal.
+     Nada de aquí toca #stage — lo que se exporta (PNG/PDF/PSD)
+     se dibuja desde el stage, así que estos estilos son solo
+     para la pantalla. Ver styles.css para el lienzo.
+     ============================================================ */
+  :root{
+    --ui-bg:        #eceef2;
+    --ui-panel:     #ffffff;
+    --ui-panel-2:   #f7f8fa;
+    --ui-border:    #e2e5ea;
+    --ui-border-2:  #d6dae1;
+    --ui-ink:       #14171c;
+    --ui-ink-2:     #5a6472;
+    --ui-ink-3:     #8d96a4;
+    --ui-accent:    #d3455b;
+    --ui-accent-ink:#b02f44;
+    --ui-accent-bg: rgba(211,69,91,.08);
+    --ui-canvas:    #23262c;
+    --ui-r:         10px;
+    --ui-r-sm:      7px;
+    --ui-shadow:    0 1px 2px rgba(16,20,27,.05), 0 2px 8px rgba(16,20,27,.04);
+    --ui-shadow-lg: 0 24px 60px rgba(16,20,27,.28);
+    --ui-ease:      160ms cubic-bezier(.2,.6,.3,1);
   }
 
-  .xlsx-btn{
-    font-size:11px; border:1px solid var(--panel-border); background:#f5f6f8; border-radius:6px;
-    padding:5px 9px; cursor:pointer; color:#333; margin-left:4px;
+  html,body{ overflow:hidden; }
+  body{ font-size:14px; -webkit-font-smoothing:antialiased; }
+
+  .app{ display:flex; flex-direction:column; height:100vh; background:var(--ui-bg); }
+  .app-body{ display:flex; flex:1; min-height:0; }
+
+  /* ---------- barra superior ---------- */
+  .app-bar{
+    flex:none; display:flex; align-items:center; gap:16px;
+    padding:0 16px 0 18px; height:56px;
+    background:var(--ui-panel); border-bottom:1px solid var(--ui-border);
+    box-shadow:0 1px 3px rgba(16,20,27,.04);
   }
-  .xlsx-btn:hover{ background:#eceef1; }
+  .brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+  .brand-mark{
+    width:30px; height:30px; flex:none; border-radius:8px;
+    background:linear-gradient(145deg, var(--ui-accent), #a72840);
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    box-shadow:0 2px 6px rgba(211,69,91,.35);
+  }
+  .brand-text{ min-width:0; }
+  .brand-text h1{
+    font-size:13.5px; font-weight:650; margin:0; letter-spacing:-.01em;
+    color:var(--ui-ink); line-height:1.2;
+  }
+  .brand-text .subtitle{
+    font-size:10.5px; font-family:var(--mono); color:var(--ui-ink-3);
+    margin:1px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52vw;
+  }
+  .app-bar-actions{ margin-left:auto; display:flex; align-items:center; gap:7px; }
+
+  /* ---------- botones ---------- */
+  .btn{
+    font:inherit; font-size:12.5px; font-weight:550; line-height:1;
+    display:inline-flex; align-items:center; gap:6px;
+    padding:0 13px; height:33px; border-radius:var(--ui-r-sm);
+    border:1px solid var(--ui-border-2); background:var(--ui-panel); color:var(--ui-ink);
+    cursor:pointer; text-decoration:none; white-space:nowrap;
+    transition:background var(--ui-ease), border-color var(--ui-ease), box-shadow var(--ui-ease), transform var(--ui-ease);
+  }
+  .btn:hover{ background:var(--ui-panel-2); border-color:#c3c9d3; }
+  .btn:active{ transform:translateY(1px); }
+  .btn:focus-visible{ outline:2px solid var(--ui-accent); outline-offset:2px; }
+  .btn:disabled{ opacity:.55; cursor:progress; }
+  .btn.primary{
+    background:var(--ui-ink); border-color:var(--ui-ink); color:#fff;
+    box-shadow:0 1px 2px rgba(16,20,27,.2);
+  }
+  .btn.primary:hover{ background:#000; border-color:#000; }
+  .btn.ghost{ background:transparent; border-color:transparent; color:var(--ui-ink-2); }
+  .btn.ghost:hover{ background:var(--ui-panel-2); color:var(--ui-ink); border-color:transparent; }
+  .btn .ico{ flex:none; opacity:.75; }
+  .btn.primary .ico{ opacity:1; }
+  .btn-sep{ width:1px; height:20px; background:var(--ui-border); margin:0 3px; flex:none; }
+
+  /* ---------- sidebar ---------- */
+  .form-pane{
+    width:392px; flex:none; overflow-y:auto; overscroll-behavior:contain;
+    background:var(--ui-panel); border-right:1px solid var(--ui-border);
+    padding:16px 14px 20px;
+  }
+  .form-pane::-webkit-scrollbar{ width:11px; }
+  .form-pane::-webkit-scrollbar-thumb{
+    background:#d2d7df; border-radius:8px; border:3px solid var(--ui-panel);
+  }
+  .form-pane::-webkit-scrollbar-thumb:hover{ background:#bcc3ce; }
+  .form-pane::-webkit-scrollbar-track{ background:transparent; }
+
+  .card{
+    border:1px solid var(--ui-border); border-radius:var(--ui-r);
+    background:var(--ui-panel); margin:0 0 10px; overflow:hidden;
+    transition:border-color var(--ui-ease), box-shadow var(--ui-ease);
+  }
+  .card:hover{ border-color:var(--ui-border-2); }
+  .card:focus-within{ border-color:#b9c0cc; box-shadow:var(--ui-shadow); }
+  .card-head{
+    display:flex; align-items:center; gap:9px;
+    padding:11px 13px; background:var(--ui-panel-2);
+    border-bottom:1px solid var(--ui-border);
+  }
+  .card-head .ico{ color:var(--ui-ink-3); flex:none; }
+  .card-head h2{
+    font-size:11.5px; font-weight:650; margin:0; color:var(--ui-ink);
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .card-body{ padding:13px; }
+  .card-body > :first-child{ margin-top:0; }
+
+  .hint{ font-size:11.5px; color:var(--ui-ink-3); margin:0 0 10px; line-height:1.45; }
+  label.field{
+    display:block; font-size:11.5px; font-weight:550; color:var(--ui-ink-2);
+    margin:13px 0 6px; letter-spacing:.01em;
+  }
+  .card-body > label.field:first-child{ margin-top:0; }
+
+  input[type=text], textarea, select{
+    width:100%; font:inherit; font-size:13px; padding:7px 10px; color:var(--ui-ink);
+    border:1px solid var(--ui-border-2); border-radius:var(--ui-r-sm); background:var(--ui-panel);
+    transition:border-color var(--ui-ease), box-shadow var(--ui-ease);
+  }
+  input[type=text]:focus, textarea:focus, select:focus, .legal-editor:focus{
+    outline:none; border-color:var(--ui-accent); box-shadow:0 0 0 3px var(--ui-accent-bg);
+  }
+  textarea{ resize:vertical; min-height:56px; }
+
+  /* color: swatch + hex, como una sola pieza */
+  .color-row{
+    display:flex; align-items:stretch; gap:0;
+    border:1px solid var(--ui-border-2); border-radius:var(--ui-r-sm); overflow:hidden;
+    transition:border-color var(--ui-ease), box-shadow var(--ui-ease);
+  }
+  .color-row:focus-within{ border-color:var(--ui-accent); box-shadow:0 0 0 3px var(--ui-accent-bg); }
+  .color-row input[type=color]{
+    width:42px; height:36px; flex:none; border:none; padding:0; cursor:pointer;
+    background:var(--ui-panel-2); border-right:1px solid var(--ui-border);
+  }
+  .color-row input[type=color]::-webkit-color-swatch-wrapper{ padding:5px; }
+  .color-row input[type=color]::-webkit-color-swatch{ border:1px solid rgba(0,0,0,.14); border-radius:4px; }
+  .color-row input[type=text]{
+    border:none; border-radius:0; flex:1; font-family:var(--mono); font-size:12.5px;
+  }
+  .color-row input[type=text]:focus{ box-shadow:none; }
+
+  /* ---------- selector de archivo con miniatura ---------- */
+  .filefield{ display:flex; align-items:center; gap:8px; }
+  .filefield input[type=file]{
+    position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;
+  }
+  .file-drop{
+    flex:1; min-width:0; display:flex; align-items:center; gap:10px;
+    padding:7px 10px; border:1px dashed var(--ui-border-2); border-radius:var(--ui-r-sm);
+    background:var(--ui-panel-2); cursor:pointer;
+    transition:border-color var(--ui-ease), background var(--ui-ease);
+  }
+  .file-drop:hover{ border-color:var(--ui-accent); background:var(--ui-accent-bg); }
+  .filefield input[type=file]:focus-visible + .file-drop{
+    border-color:var(--ui-accent); box-shadow:0 0 0 3px var(--ui-accent-bg);
+  }
+  .file-thumb{
+    width:34px; height:34px; flex:none; border-radius:6px;
+    background:#fff center/contain no-repeat;
+    border:1px solid var(--ui-border-2);
+    display:flex; align-items:center; justify-content:center; color:var(--ui-ink-3);
+  }
+  .file-thumb.has-img{ background-color:#fff; }
+  .file-thumb.has-img svg{ display:none; }
+  .file-text{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .file-text b{
+    font-size:12.5px; font-weight:550; color:var(--ui-ink);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .file-text i{ font-size:10.5px; font-style:normal; color:var(--ui-ink-3); }
+  .filefield.is-set .file-drop{ border-style:solid; background:var(--ui-panel); }
+  .filefield.is-set .file-text b{ font-family:var(--mono); font-size:11.5px; }
+
+  .icon-btn{
+    flex:none; width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--ui-border-2); border-radius:var(--ui-r-sm);
+    background:var(--ui-panel); color:var(--ui-ink-3); cursor:pointer;
+    transition:all var(--ui-ease);
+  }
+  .icon-btn:hover{ background:var(--ui-accent-bg); border-color:var(--ui-accent); color:var(--ui-accent-ink); }
+  .icon-btn:focus-visible{ outline:2px solid var(--ui-accent); outline-offset:2px; }
+  .filefield:not(.is-set) .icon-btn{ opacity:.4; pointer-events:none; }
+
+  /* ---------- editor legal ---------- */
+  .rte-toolbar{ display:flex; align-items:center; gap:5px; margin-bottom:7px; flex-wrap:wrap; }
+  .rte-btn{
+    width:31px; height:31px; border:1px solid var(--ui-border-2); background:var(--ui-panel);
+    border-radius:var(--ui-r-sm); cursor:pointer; font-size:13px; color:var(--ui-ink);
+    display:flex; align-items:center; justify-content:center; transition:all var(--ui-ease);
+  }
+  .rte-btn:hover{ background:var(--ui-panel-2); border-color:#c3c9d3; }
+  .rte-btn.active{ background:var(--ui-ink); color:#fff; border-color:var(--ui-ink); }
+  .rte-toolbar input[type=color]{
+    width:31px; height:31px; padding:2px; border:1px solid var(--ui-border-2);
+    border-radius:var(--ui-r-sm); background:var(--ui-panel); cursor:pointer;
+  }
+  .rte-toolbar input[type=color]::-webkit-color-swatch-wrapper{ padding:2px; }
+  .rte-toolbar input[type=color]::-webkit-color-swatch{ border:none; border-radius:3px; }
+  .xlsx-btn{
+    font:inherit; font-size:11.5px; height:31px; padding:0 10px; margin-left:auto;
+    border:1px solid var(--ui-border-2); background:var(--ui-panel); border-radius:var(--ui-r-sm);
+    cursor:pointer; color:var(--ui-ink-2); display:inline-flex; align-items:center; gap:5px;
+    transition:all var(--ui-ease);
+  }
+  .xlsx-btn:hover{ background:#eaf6ee; border-color:#79b98f; color:#2c7a43; }
+  .legal-editor{
+    width:100%; min-height:88px; font-size:13px; padding:9px 10px;
+    border:1px solid var(--ui-border-2); border-radius:var(--ui-r-sm);
+    font-family:"InterCenefa", inherit; line-height:1.45; outline:none;
+    transition:border-color var(--ui-ease), box-shadow var(--ui-ease);
+  }
+  .legal-editor:empty::before{ content:attr(data-placeholder); color:var(--ui-ink-3); }
+
+  /* ---------- switch ---------- */
+  .switch-row{
+    display:flex; align-items:center; gap:9px; margin-top:11px;
+    font-size:12.5px; color:var(--ui-ink-2); cursor:pointer; user-select:none;
+  }
+  .switch{ position:relative; flex:none; width:34px; height:20px; }
+  .switch input{
+    position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; z-index:1;
+  }
+  .switch .track{
+    position:absolute; inset:0; border-radius:20px; background:#d3d8e0;
+    transition:background var(--ui-ease);
+  }
+  .switch .track::after{
+    content:""; position:absolute; top:2px; left:2px; width:16px; height:16px;
+    border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25);
+    transition:transform var(--ui-ease);
+  }
+  .switch input:checked + .track{ background:var(--ui-accent); }
+  .switch input:checked + .track::after{ transform:translateX(14px); }
+  .switch input:focus-visible + .track{ outline:2px solid var(--ui-accent); outline-offset:2px; }
+
+  .variant-note{
+    font-size:11px; font-family:var(--mono); line-height:1.5;
+    background:var(--ui-panel-2); border:1px solid var(--ui-border);
+    border-left:3px solid var(--ui-accent);
+    border-radius:var(--ui-r-sm); padding:8px 10px; color:var(--ui-ink-2);
+  }
+
+  .reset-all{
+    width:100%; height:36px; margin-top:4px; justify-content:center;
+    color:var(--ui-ink-2);
+  }
+  .reset-all:hover{ background:var(--ui-accent-bg); border-color:var(--ui-accent); color:var(--ui-accent-ink); }
+
+  /* ---------- panel de vista previa ---------- */
+  .preview-pane{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .toolbar{
+    flex:none; display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+    padding:9px 14px; background:var(--ui-panel);
+    border-bottom:1px solid var(--ui-border); font-size:12.5px;
+  }
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 11px;
+    border:1px solid var(--ui-border-2); border-radius:30px; background:var(--ui-panel);
+    color:var(--ui-ink-2); cursor:pointer; user-select:none; white-space:nowrap;
+    transition:all var(--ui-ease);
+  }
+  .chip:hover{ background:var(--ui-panel-2); border-color:#c3c9d3; }
+  .chip input{ position:absolute; opacity:0; width:0; height:0; }
+  .chip .dot{
+    width:7px; height:7px; border-radius:50%; background:#cdd3dc; flex:none;
+    transition:background var(--ui-ease), box-shadow var(--ui-ease);
+  }
+  .chip:has(input:checked){
+    background:var(--ui-accent-bg); border-color:rgba(211,69,91,.45); color:var(--ui-accent-ink);
+    font-weight:550;
+  }
+  .chip:has(input:checked) .dot{ background:var(--ui-accent); box-shadow:0 0 0 3px rgba(211,69,91,.18); }
+  .chip:has(input:focus-visible){ outline:2px solid var(--ui-accent); outline-offset:2px; }
+  .toolbar .spacer{ margin-left:auto; }
+
+  .stage-wrap{
+    flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:
+      linear-gradient(rgba(255,255,255,.028), rgba(255,255,255,.028)),
+      repeating-conic-gradient(#282b31 0% 25%, #23262c 0% 50%) 50% / 24px 24px;
+  }
+  .stage-wrap::-webkit-scrollbar{ width:12px; height:12px; }
+  .stage-wrap::-webkit-scrollbar-thumb{
+    background:#494e58; border-radius:8px; border:3px solid transparent; background-clip:padding-box;
+  }
+  .stage-wrap::-webkit-scrollbar-thumb:hover{ background:#5c626e; background-clip:padding-box; }
+  .stage-wrap::-webkit-scrollbar-track{ background:transparent; }
+
+  /* ---------- modal Excel ---------- */
   .xlsx-modal{
-    position:fixed; inset:0; background:rgba(20,22,28,.5); z-index:1000;
-    display:flex; align-items:center; justify-content:center; padding:24px;
+    position:fixed; inset:0; background:rgba(16,20,27,.55); z-index:1000;
+    display:flex; align-items:center; justify-content:center; padding:28px;
+    backdrop-filter:blur(3px);
   }
   .xlsx-modal[hidden]{ display:none; }
   .xlsx-modal-panel{
-    background:var(--panel); border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.35);
-    width:min(880px, 100%); max-height:86vh; display:flex; flex-direction:column;
-    padding:18px 20px; overflow:hidden;
+    background:var(--ui-panel); border-radius:14px; box-shadow:var(--ui-shadow-lg);
+    width:min(900px,100%); max-height:86vh; display:flex; flex-direction:column; overflow:hidden;
   }
-  .xlsx-modal-head{ display:flex; align-items:center; justify-content:space-between; }
-  .xlsx-modal-head h2{ font-size:15px; margin:0; }
+  .xlsx-modal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:15px 18px; border-bottom:1px solid var(--ui-border); background:var(--ui-panel-2);
+  }
+  .xlsx-modal-head h2{ font-size:14px; font-weight:650; margin:0; }
   .xlsx-close{
-    border:none; background:transparent; font-size:16px; cursor:pointer; color:#666;
-    width:28px; height:28px; border-radius:6px;
+    border:none; background:transparent; font-size:15px; cursor:pointer; color:var(--ui-ink-3);
+    width:30px; height:30px; border-radius:var(--ui-r-sm); flex:none; transition:all var(--ui-ease);
   }
-  .xlsx-close:hover{ background:#f0f1f4; }
-  .xlsx-modal .hint{ font-size:12px; color:#666; margin:6px 0 12px; line-height:1.45; }
-  .xlsx-modal select{
-    font-size:12.5px; padding:6px 8px; border:1px solid var(--panel-border); border-radius:6px;
-  }
-  .xlsx-status{ font-size:12px; color:#666; margin:8px 0 4px; min-height:16px; }
-  .xlsx-status.err{ color:#b3273f; }
+  .xlsx-close:hover{ background:#eceef2; color:var(--ui-ink); }
+  .xlsx-modal-body{ padding:16px 18px 18px; display:flex; flex-direction:column; min-height:0; flex:1; }
+  .xlsx-modal .hint{ margin:0 0 12px; font-size:12px; }
+  .xlsx-pick{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+  .xlsx-pick input[type=file]{ font-size:12.5px; }
+  .xlsx-pick select{ width:auto; font-size:12.5px; }
+  .xlsx-status{ font-size:12px; color:var(--ui-ink-3); margin:10px 0 6px; min-height:16px; }
+  .xlsx-status.err{ color:var(--ui-accent-ink); }
   .xlsx-status.ok{ color:#2c7a43; }
-  .xlsx-grid-wrap{ overflow:auto; border:1px solid var(--panel-border); border-radius:8px; flex:1; }
+  .xlsx-grid-wrap{
+    overflow:auto; border:1px solid var(--ui-border); border-radius:var(--ui-r); flex:1; min-height:120px;
+  }
   table.xlsx-grid{ border-collapse:collapse; font-size:12px; }
   table.xlsx-grid th, table.xlsx-grid td{
-    border:1px solid var(--panel-border); padding:5px 8px; text-align:left; white-space:nowrap;
+    border:1px solid var(--ui-border); padding:6px 9px; text-align:left; white-space:nowrap;
   }
-  table.xlsx-grid thead th{ background:#f5f6f8; position:sticky; top:0; z-index:1; color:#555; font-weight:600; }
-  table.xlsx-grid tbody th{ background:#f5f6f8; position:sticky; left:0; color:#555; font-weight:600; }
+  table.xlsx-grid thead th{
+    background:var(--ui-panel-2); position:sticky; top:0; z-index:1;
+    color:var(--ui-ink-2); font-weight:600;
+  }
+  table.xlsx-grid tbody th{
+    background:var(--ui-panel-2); position:sticky; left:0; color:var(--ui-ink-2); font-weight:600;
+  }
   table.xlsx-grid td{ cursor:pointer; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
-  table.xlsx-grid td:hover{ background:#fff3ea; outline:1px solid var(--accent); outline-offset:-1px; }
-  .xlsx-empty{ padding:20px; color:#777; font-size:12.5px; }
+  table.xlsx-grid td:hover{
+    background:var(--ui-accent-bg); outline:1px solid var(--ui-accent); outline-offset:-1px;
+  }
+  .xlsx-empty{ padding:22px; color:var(--ui-ink-3); font-size:12.5px; }
 
-  .preview-pane{ flex:1; display:flex; flex-direction:column; min-width:0; }
-  .toolbar{
-    display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:10px 16px;
-    background: var(--panel); border-bottom:1px solid var(--panel-border); font-size:12.5px;
+  @media (max-width:1100px){
+    .form-pane{ width:330px; }
+    .brand-text .subtitle{ max-width:34vw; }
   }
-  .toolbar label{ display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; }
-  .toolbar a.btn, .toolbar button.btn{
-    margin-left:auto; font-size:12.5px; background:var(--ink); color:#fff; border:none;
-    padding:7px 12px; border-radius:6px; text-decoration:none; cursor:pointer;
-  }
-  .toolbar button.btn.secondary{ background:#fff; color:var(--ink); border:1px solid var(--panel-border); margin-left:8px; }
-  .stage-wrap{ flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; padding:24px; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <div class="form-pane">
-    <h1>Inyector de elementos</h1>
-    <p class="subtitle" id="subtitleTag">LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</p>
-
-    <fieldset>
-      <legend>Fondo</legend>
-      <label class="field">Color (hexadecimal)</label>
-      <div class="row-inline">
-        <input type="color" id="fondoPicker">
-        <input type="text" id="fondoHex" placeholder="#ffffff" style="flex:1">
+  <header class="app-bar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1.8" y="3.2" width="12.4" height="9.6" rx="1.4"/><path d="M1.8 9.6l3.2-2.8 3 2.6 2.4-1.9 3.8 3"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <h1>Inyector de elementos</h1>
+        <p class="subtitle" id="subtitleTag">LOC_MINICENEFA_CENEFAFASTFOODKOXKALOC1_FASTFOODKOXKA(1PROMO)</p>
       </div>
-    </fieldset>
+    </div>
 
-    <fieldset>
-      <legend>Vectores decorativos</legend>
-      <label class="field">Vector 1</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="vector1File"><button class="clear-btn" data-clear="vector1">Quitar</button></div>
-      <label class="field">Vector 2</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="vector2File"><button class="clear-btn" data-clear="vector2">Quitar</button></div>
-    </fieldset>
+    <div class="app-bar-actions">
+      <a class="btn ghost" href="render.html" target="_blank" rel="noopener">
+        <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2.5H13.5V6.5"/><path d="M13.5 2.5L7.5 8.5"/><path d="M12.5 9.8v3a1.2 1.2 0 0 1-1.2 1.2H3.2A1.2 1.2 0 0 1 2 12.8V4.7a1.2 1.2 0 0 1 1.2-1.2h3"/></svg>
+        render.html
+      </a>
+      <span class="btn-sep"></span>
+      <button class="btn" id="downloadPsd" title="PSD por capas — cada pieza en su propia capa de Photoshop, no texto/vector editable (igual que el PDF, en curvas). Puede tardar unos segundos y pesar varias decenas de MB.">
+        <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.8L14.2 5 8 8.2 1.8 5 8 1.8z"/><path d="M1.8 8L8 11.2 14.2 8"/><path d="M1.8 11L8 14.2 14.2 11"/></svg>
+        PSD
+      </button>
+      <button class="btn" id="downloadPdf" title="PDF de impresión, con los textos en curvas">
+        <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1.8H4.4a1.4 1.4 0 0 0-1.4 1.4v9.6a1.4 1.4 0 0 0 1.4 1.4h7.2a1.4 1.4 0 0 0 1.4-1.4V5.8L9 1.8z"/><path d="M9 1.8v4h4"/></svg>
+        PDF
+      </button>
+      <button class="btn primary" id="downloadPng">
+        <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8.4"/><path d="M4.8 7.4L8 10.6l3.2-3.2"/><path d="M2.4 12.6v.6a1.2 1.2 0 0 0 1.2 1.2h8.8a1.2 1.2 0 0 0 1.2-1.2v-.6"/></svg>
+        Descargar PNG
+      </button>
+    </div>
+  </header>
 
-    <fieldset>
-      <legend>Bodegón</legend>
-      <label class="field">Imagen del bodegón</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="productoFile"><button class="clear-btn" data-clear="producto">Quitar</button></div>
-    </fieldset>
+  <div class="app-body">
 
-    <fieldset>
-      <legend>Promo</legend>
-      <label class="field">Imagen de la promo</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="promoFile"><button class="clear-btn" data-clear="promo">Quitar</button></div>
-    </fieldset>
+  <aside class="form-pane">
 
-    <fieldset>
-      <legend>Combo corporativo</legend>
-      <div class="variant-note" id="variantNote">variante activa: —</div>
-      <label class="field" style="margin-top:10px">Sello de responsabilidad</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="selloFile"><button class="clear-btn" data-clear="corp-sello">Quitar (apagar)</button></div>
-      <label class="field" style="margin-top:10px">Sello -18</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="edadFile"><button class="clear-btn" data-clear="corp-edad18">Quitar (apagar)</button></div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Legal</legend>
-      <label class="field">Texto — selecciona una parte para darle su propio estilo</label>
-      <div class="rte-toolbar">
-        <button type="button" class="rte-btn" id="legalBoldBtn" title="Negrita (a la selección)"><b>B</b></button>
-        <button type="button" class="rte-btn" id="legalItalicBtn" title="Cursiva (a la selección)"><i>I</i></button>
-        <input type="color" id="legalColor" title="Color (a la selección)" value="#000000">
-        <button type="button" class="xlsx-btn" id="legalExcelBtn" title="Traer el texto legal de una celda de Excel, con su negrita/cursiva/color reales">Cargar desde Excel</button>
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.2"/><path d="M8 1.8a6.2 6.2 0 0 0 0 12.4 1.6 1.6 0 0 0 1.2-2.6 1.6 1.6 0 0 1 1.2-2.6h1.4A2.4 2.4 0 0 0 14.2 6.6 6.2 6.2 0 0 0 8 1.8z"/></svg>
+        <h2>Fondo</h2>
       </div>
-      <div id="legalText" class="legal-editor" contenteditable="true" data-placeholder="Vigencia del... No aplica con otras promociones..."></div>
-      <div class="checkbox-row"><input type="checkbox" id="legalOutline"><label for="legalOutline">Contorno blanco (para fondos oscuros)</label></div>
-    </fieldset>
+      <div class="card-body">
+        <label class="field" for="fondoHex">Color del fondo</label>
+        <div class="color-row">
+          <input type="color" id="fondoPicker" aria-label="Selector de color del fondo">
+          <input type="text" id="fondoHex" placeholder="#ffffff" spellcheck="false">
+        </div>
+      </div>
+    </section>
 
-    <fieldset>
-      <legend>QR</legend>
-      <label class="field">Imagen del QR</label>
-      <div class="row-inline"><input type="file" accept="image/*" id="qrFile"><button class="clear-btn" data-clear="qr">Quitar</button></div>
-    </fieldset>
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.2 13.8S3 8.6 6.4 6.2c2.4-1.7 5-1.4 7.4-4"/><circle cx="4.6" cy="11.4" r="1.6"/><circle cx="11.4" cy="4.6" r="1.6"/></svg>
+        <h2>Vectores decorativos</h2>
+      </div>
+      <div class="card-body">
+        <label class="field" for="vector1File">Vector 1</label>
+        <div class="filefield" data-file="vector1File">
+          <input type="file" accept="image/*" id="vector1File">
+          <label class="file-drop" for="vector1File">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>PNG, JPG o SVG</i></span>
+          </label>
+          <button class="icon-btn" data-clear="vector1" title="Quitar" aria-label="Quitar vector 1">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
 
-    <button class="clear-btn" id="resetAll" style="width:100%;padding:8px;font-size:12.5px;">Reiniciar todo</button>
-  </div>
+        <label class="field" for="vector2File">Vector 2</label>
+        <div class="filefield" data-file="vector2File">
+          <input type="file" accept="image/*" id="vector2File">
+          <label class="file-drop" for="vector2File">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>PNG, JPG o SVG</i></span>
+          </label>
+          <button class="icon-btn" data-clear="vector2" title="Quitar" aria-label="Quitar vector 2">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
 
-  <div class="preview-pane">
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.4 6.2h9.2l-.8 7a1.3 1.3 0 0 1-1.3 1.1H5.5a1.3 1.3 0 0 1-1.3-1.1l-.8-7z"/><path d="M6 6.2V4.4a2 2 0 0 1 4 0v1.8"/></svg>
+        <h2>Bodegón</h2>
+      </div>
+      <div class="card-body">
+        <label class="field" for="productoFile">Imagen del bodegón</label>
+        <div class="filefield" data-file="productoFile">
+          <input type="file" accept="image/*" id="productoFile">
+          <label class="file-drop" for="productoFile">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>PNG, JPG o SVG</i></span>
+          </label>
+          <button class="icon-btn" data-clear="producto" title="Quitar" aria-label="Quitar bodegón">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.6 1.9l1.7 3.5 3.8.6-2.8 2.7.7 3.8L8.6 10.7 5.2 12.5l.7-3.8L3.1 6l3.8-.6L8.6 1.9z"/></svg>
+        <h2>Promo</h2>
+      </div>
+      <div class="card-body">
+        <label class="field" for="promoFile">Imagen de la promo</label>
+        <div class="filefield" data-file="promoFile">
+          <input type="file" accept="image/*" id="promoFile">
+          <label class="file-drop" for="promoFile">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>PNG, JPG o SVG</i></span>
+          </label>
+          <button class="icon-btn" data-clear="promo" title="Quitar" aria-label="Quitar promo">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.8l5.2 2v4c0 3.1-2.1 5.6-5.2 6.4C4.9 13.4 2.8 10.9 2.8 7.8v-4l5.2-2z"/><path d="M5.9 7.9l1.5 1.5 2.8-2.8"/></svg>
+        <h2>Combo corporativo</h2>
+      </div>
+      <div class="card-body">
+        <div class="variant-note" id="variantNote">variante activa: —</div>
+
+        <label class="field" for="selloFile">Sello de responsabilidad</label>
+        <div class="filefield" data-file="selloFile">
+          <input type="file" accept="image/*" id="selloFile">
+          <label class="file-drop" for="selloFile">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>vacío = sello apagado</i></span>
+          </label>
+          <button class="icon-btn" data-clear="corp-sello" title="Quitar (apagar)" aria-label="Quitar sello de responsabilidad">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+
+        <label class="field" for="edadFile">Sello −18</label>
+        <div class="filefield" data-file="edadFile">
+          <input type="file" accept="image/*" id="edadFile">
+          <label class="file-drop" for="edadFile">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>vacío = sello apagado</i></span>
+          </label>
+          <button class="icon-btn" data-clear="corp-edad18" title="Quitar (apagar)" aria-label="Quitar sello menos 18">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 2.4h6L13 5.8v7.8H3.6z"/><path d="M5.6 7.6h4.8M5.6 10h4.8"/></svg>
+        <h2>Legal</h2>
+      </div>
+      <div class="card-body">
+        <p class="hint">Selecciona una parte del texto para darle su propio estilo.</p>
+        <div class="rte-toolbar">
+          <button type="button" class="rte-btn" id="legalBoldBtn" title="Negrita (a la selección)"><b>B</b></button>
+          <button type="button" class="rte-btn" id="legalItalicBtn" title="Cursiva (a la selección)"><i>I</i></button>
+          <input type="color" id="legalColor" title="Color (a la selección)" value="#000000">
+          <button type="button" class="xlsx-btn" id="legalExcelBtn" title="Traer el texto legal de una celda de Excel, con su negrita/cursiva/color reales">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.2" y="2.6" width="11.6" height="10.8" rx="1.3"/><path d="M2.2 6.2h11.6M6.4 6.2v7.2"/></svg>
+            Excel
+          </button>
+        </div>
+        <div id="legalText" class="legal-editor" contenteditable="true" data-placeholder="Vigencia del... No aplica con otras promociones..."></div>
+        <label class="switch-row" for="legalOutline">
+          <span class="switch"><input type="checkbox" id="legalOutline"><span class="track"></span></span>
+          Contorno blanco (para fondos oscuros)
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <svg class="ico" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.2" y="2.2" width="4.6" height="4.6" rx="1"/><rect x="9.2" y="2.2" width="4.6" height="4.6" rx="1"/><rect x="2.2" y="9.2" width="4.6" height="4.6" rx="1"/><path d="M9.2 9.2h2v2h-2zM12.6 12.6h1.2v1.2h-1.2z"/></svg>
+        <h2>QR</h2>
+      </div>
+      <div class="card-body">
+        <label class="field" for="qrFile">Imagen del QR</label>
+        <div class="filefield" data-file="qrFile">
+          <input type="file" accept="image/*" id="qrFile">
+          <label class="file-drop" for="qrFile">
+            <span class="file-thumb"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="12" height="10" rx="1.4"/><path d="M2 10l3-2.6 2.8 2.4 2.2-1.8L14 10.4"/></svg></span>
+            <span class="file-text"><b>Elegir imagen</b><i>PNG, JPG o SVG</i></span>
+          </label>
+          <button class="icon-btn" data-clear="qr" title="Quitar" aria-label="Quitar QR">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <button class="btn reset-all" id="resetAll">
+      <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 8a5.4 5.4 0 1 1-1.6-3.8"/><path d="M13.6 2.2v3.2h-3.2"/></svg>
+      Reiniciar todo
+    </button>
+  </aside>
+
+  <main class="preview-pane">
     <div class="toolbar">
-      <label><input type="checkbox" id="toggleBoxes" checked> Cajas</label>
-      <label><input type="checkbox" id="toggleLabels" checked> Etiquetas</label>
-      <label><input type="checkbox" id="toggleSuaje" checked> Troquel</label>
-      <label title="Arrastra para mover. Rueda del mouse sobre una capa para girarla (Shift = pasos de 15°, Alt = pasos finos de 0.5°). Ctrl/Cmd + rueda para escalarla (Shift = pasos de 20%, Alt = pasos finos de 1%)."><input type="checkbox" id="toggleDrag"> Ajustar posición (arrastrar · rueda = girar · Ctrl+rueda = escalar)</label>
-      <button class="btn secondary" id="resetPositions">Reiniciar ajustes</button>
-      <button class="btn secondary" id="downloadPng">Descargar PNG</button>
-      <button class="btn secondary" id="downloadPdf">Descargar PDF (impresión)</button>
-      <button class="btn secondary" id="downloadPsd" title="PSD por capas — cada pieza en su propia capa de Photoshop, no texto/vector editable (igual que el PDF, en curvas). Puede tardar unos segundos y pesar varias decenas de MB.">Descargar PSD (por capas)</button>
-      <a class="btn" href="render.html" target="_blank" rel="noopener">Abrir render.html →</a>
+      <label class="chip"><input type="checkbox" id="toggleBoxes" checked><span class="dot"></span>Cajas</label>
+      <label class="chip"><input type="checkbox" id="toggleLabels" checked><span class="dot"></span>Etiquetas</label>
+      <label class="chip"><input type="checkbox" id="toggleSuaje" checked><span class="dot"></span>Troquel</label>
+      <label class="chip" title="Arrastra para mover. Rueda del mouse sobre una capa para girarla (Shift = pasos de 15°, Alt = pasos finos de 0.5°). Ctrl/Cmd + rueda para escalarla (Shift = pasos de 20%, Alt = pasos finos de 1%).">
+        <input type="checkbox" id="toggleDrag"><span class="dot"></span>Ajustar posición
+      </label>
+      <span class="spacer"></span>
+      <button class="btn" id="resetPositions">
+        <svg class="ico" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 8a5.4 5.4 0 1 1-1.6-3.8"/><path d="M13.6 2.2v3.2h-3.2"/></svg>
+        Reiniciar ajustes
+      </button>
     </div>
     <div class="stage-wrap" id="stageWrap">
       <div id="stageScaler"><div id="stage"></div></div>
     </div>
-  </div>
+  </main>
 
+  </div>
 </div>
 
 <div id="xlsxModal" class="xlsx-modal" hidden>
@@ -193,13 +596,15 @@
       <h2>Cargar texto legal desde Excel</h2>
       <button type="button" class="xlsx-close" id="xlsxModalClose" aria-label="Cerrar">✕</button>
     </div>
-    <p class="hint">Elige el archivo .xlsx y luego haz clic en la celda que tiene el texto legal — se trae con su negrita, cursiva y color reales de Excel (no depende del portapapeles).</p>
-    <div class="row-inline">
-      <input type="file" accept=".xlsx" id="xlsxFileInput">
-      <select id="xlsxSheetSelect" hidden></select>
+    <div class="xlsx-modal-body">
+      <p class="hint">Elige el archivo .xlsx y luego haz clic en la celda que tiene el texto legal — se trae con su negrita, cursiva y color reales de Excel (no depende del portapapeles).</p>
+      <div class="xlsx-pick">
+        <input type="file" accept=".xlsx" id="xlsxFileInput">
+        <select id="xlsxSheetSelect" hidden></select>
+      </div>
+      <div class="xlsx-status" id="xlsxStatus"></div>
+      <div class="xlsx-grid-wrap" id="xlsxGridWrap"></div>
     </div>
-    <div class="xlsx-status" id="xlsxStatus"></div>
-    <div class="xlsx-grid-wrap" id="xlsxGridWrap"></div>
   </div>
 </div>
 
@@ -479,6 +884,121 @@ document.getElementById("resetAll").addEventListener("click", () => {
 
 window.addEventListener("resize", () => fitStageToContainer(stage, stageWrap, 24));
 refresh();
+</script>
+
+<script>
+/* ============================================================
+   Capa de interfaz. No toca el render ni el estado: solo refleja
+   en los controles lo que ya hay en `state` (miniatura del archivo
+   cargado, botón de quitar activo, B/I según la selección) y añade
+   arrastrar-y-soltar sobre el propio selector de archivo.
+   ============================================================ */
+(function () {
+  // mismo mapeo inputId -> slot que usa wireImageInput más arriba
+  const SLOTS = {
+    vector1File:  () => state.vector1,
+    vector2File:  () => state.vector2,
+    productoFile: () => state.producto,
+    promoFile:    () => state.promo,
+    selloFile:    () => state.corporativo.sello,
+    edadFile:     () => state.corporativo.edad18,
+    qrFile:       () => state.qr,
+  };
+
+  const fields = [...document.querySelectorAll(".filefield[data-file]")].map(el => {
+    const id = el.dataset.file;
+    return {
+      el,
+      id,
+      input: document.getElementById(id),
+      thumb: el.querySelector(".file-thumb"),
+      name:  el.querySelector(".file-text b"),
+      meta:  el.querySelector(".file-text i"),
+      emptyName: el.querySelector(".file-text b").textContent,
+      emptyMeta: el.querySelector(".file-text i").textContent,
+      getSlot: SLOTS[id],
+    };
+  });
+
+  // el nombre del archivo solo lo conocemos mientras dura la sesión; el dataUrl
+  // sí sobrevive en localStorage, así que la miniatura se reconstruye siempre
+  // desde `state` y el nombre se guarda aparte, únicamente para mostrarlo.
+  const chosenNames = {};
+
+  function syncField(f) {
+    const slot = f.getSlot ? f.getSlot() : null;
+    const dataUrl = slot && slot.dataUrl;
+    f.el.classList.toggle("is-set", !!dataUrl);
+    f.thumb.classList.toggle("has-img", !!dataUrl);
+    f.thumb.style.backgroundImage = dataUrl ? `url("${dataUrl}")` : "";
+    if (dataUrl) {
+      f.name.textContent = chosenNames[f.id] || "Imagen cargada";
+      f.name.title = f.name.textContent;
+      f.meta.textContent = "Clic para reemplazar";
+    } else {
+      f.name.textContent = f.emptyName;
+      f.name.title = "";
+      f.meta.textContent = f.emptyMeta;
+      f.input.value = "";
+      delete chosenNames[f.id];
+    }
+  }
+
+  const syncFields = () => fields.forEach(syncField);
+
+  fields.forEach(f => {
+    f.input.addEventListener("change", () => {
+      const file = f.input.files && f.input.files[0];
+      if (file) chosenNames[f.id] = file.name;
+    });
+
+    // arrastrar y soltar sobre el propio selector
+    const drop = f.el.querySelector(".file-drop");
+    ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => {
+      e.preventDefault();
+      drop.style.borderColor = "var(--ui-accent)";
+      drop.style.background = "var(--ui-accent-bg)";
+    }));
+    ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, () => {
+      drop.style.borderColor = "";
+      drop.style.background = "";
+    }));
+    drop.addEventListener("drop", e => {
+      e.preventDefault();
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!file || !/^image\//.test(file.type) && !/\.svg$/i.test(file.name)) return;
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      f.input.files = dt.files;
+      f.input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  });
+
+  // refresh() ya se llama tras cada cambio de estado (carga, quitar, arrastre):
+  // colgarse de él mantiene las miniaturas en sincronía sin duplicar lógica.
+  const baseRefresh = refresh;
+  refresh = async function (...args) {
+    const out = await baseRefresh.apply(this, args);
+    syncFields();
+    return out;
+  };
+
+  // negrita/cursiva reflejan el estado real de la selección
+  const legalBold = document.getElementById("legalBoldBtn");
+  const legalItalic = document.getElementById("legalItalicBtn");
+  const legalEd = document.getElementById("legalText");
+  function syncRte() {
+    if (!legalEd.contains(document.getSelection().anchorNode)) return;
+    try {
+      legalBold.classList.toggle("active", document.queryCommandState("bold"));
+      legalItalic.classList.toggle("active", document.queryCommandState("italic"));
+    } catch (e) { /* no crítico */ }
+  }
+  document.addEventListener("selectionchange", syncRte);
+  [legalBold, legalItalic].forEach(b => b.addEventListener("click", () => setTimeout(syncRte, 0)));
+
+  syncFields();
+})();
 </script>
 </body>
 </html>
